@@ -3,11 +3,15 @@ import { NextFunction } from 'express';
 import UserModel from '../models/user';
 import {userdocument} from '../types/user.interface';
 import {Error} from 'mongoose';
+import jwt from 'jsonwebtoken';
+import {secret} from '../config'
 const normalizeduser = (user:userdocument) =>{
+    const token = jwt.sign({id:user.id,email:user.email},secret);
     return{
         email:user.email,
         username:user.username,
-        id:user.id
+        id:user.id,
+        token
     };
 };
 export const register = async (req:Request,res:Response,next:NextFunction) => {
