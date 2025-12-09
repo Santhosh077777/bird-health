@@ -1,7 +1,9 @@
 import { Schema, model } from 'mongoose';
-import {usrerdocument} from '../types/user.interface';
+import {userdocument} from '../types/user.interface';
 import validator from 'validator';
-const schema = new Schema<usrerdocument>({
+import bcrypt from 'bcrypt';
+
+const Userschema = new Schema<userdocument>({
     email:{
         type :String,
         required :[true, 'Email is required'],
@@ -28,4 +30,19 @@ const schema = new Schema<usrerdocument>({
 },
 {timestamps:true}
 );
-export default model<usrerdocument>('User', schema);
+Userschema.pre('save', async function(next){
+    if(!this.isModified('password')){
+        return next();
+    }
+    try {
+        const salt=await bcrypt.genSalt(10);
+        this.password=await bcrypt.hash(this.password,salt);
+        return next();
+    } catch (error) {
+    next(error as Error);
+    }
+});
+Userschema.methods.ValidatePassword=async function(Password:string){
+    return await bcrypt.compare(Password,this.password);
+};
+export default model<userdocument>('User', Userschema);

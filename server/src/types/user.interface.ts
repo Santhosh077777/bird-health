@@ -5,4 +5,6 @@ export interface User {
     password: string;
     createdAt: Date;
 }
-export interface usrerdocument extends User, Document{}
+export interface userdocument extends User, Document{
+    ValidatePassword(password:String):String;
+}
